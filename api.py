@@ -288,6 +288,3 @@ async def health():
     return {"status": "ok"}
 
 
-@app.get("/")
-async def serve_frontend():
-    return FileResponse(os.path.join(os.path.dirname(os.path.abspath(__file__)), "GraphAgenticRAG.html"))
