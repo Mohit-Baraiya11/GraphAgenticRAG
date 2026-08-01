@@ -17,13 +17,12 @@ A LangGraph-based agentic RAG system combining hybrid search, graph reasoning, a
 ## Architecture
 
 User → FastAPI → LangGraph Workflow
-├─ Hybrid Retrieval (Pinecone + BM25)
-├─ Graph Reasoning (NetworkX)
-├─ Web Search (Tavily)
-└─ Synthesizer/Verifier Loop → Groq Inference
-↓
-Supabase (persistence + auth)
-
+                    ├─ Hybrid Retrieval (Pinecone + BM25)
+                    ├─ Graph Reasoning (NetworkX)
+                    ├─ Web Search (Tavily)
+                    └─ Synthesizer/Verifier Loop → Groq Inference
+                                                        ↓
+                                              Supabase (persistence + auth)
 
 Ingestion and querying are handled as separate pipelines — documents are processed and indexed independently from the query-time retrieval flow.
 
@@ -46,16 +45,14 @@ Ingestion and querying are handled as separate pipelines — documents are proce
 
 ### Prerequisites
 - Python 3.11+
-- [uv](https://github.com/astral-sh/uv) package manager
+- uv package manager (https://github.com/astral-sh/uv)
 - Docker (optional, for containerized deployment)
 
 ### Local Setup
 
-```bash
 git clone https://github.com/Mohit-Baraiya11/GraphAgenticRAG.git
 cd GraphAgenticRAG
 uv sync
-```
 
 Create a `.env` file in the project root with the following variables:
 
@@ -69,41 +66,30 @@ SUPABASE_URL=
 SUPABASE_KEY=
 TAVILY_API_KEY=
 
-
 Run the server:
 
-```bash
 uv run uvicorn api:app --host 0.0.0.0 --port 8000
-```
 
-Visit `http://localhost:8000`.
+Visit http://localhost:8000
 
 ### Docker Setup
 
 Build the image:
 
-```bash
 docker build -t graphagenticrag .
-```
 
 Run the container:
 
-```bash
 docker run -p 8000:8000 --env-file .env graphagenticrag
-```
 
-Visit `http://localhost:8000` once the container is running.
+Visit http://localhost:8000 once the container is running.
 
-> **Note:** Docker's `--env-file` requires unquoted values (`KEY=value`, not `KEY="value"`) and no spaces around the `=` sign.
+Note: Docker's --env-file requires unquoted values (KEY=value, not KEY="value") and no spaces around the = sign.
 
 ## API
 
-Interactive API docs are available at `/docs` (Swagger UI) once the server is running.
+Interactive API docs are available at /docs (Swagger UI) once the server is running.
 
 ## Status
 
 Actively in development. Core RAG pipeline, hybrid retrieval, session management, and Docker deployment are functional. RAGAS-based evaluation is planned next to quantify retrieval and answer quality.
-
-## License
-
-MIT
