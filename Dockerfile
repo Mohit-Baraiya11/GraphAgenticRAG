@@ -21,7 +21,7 @@ COPY pyproject.toml uv.lock ./
 RUN pip install uv
 
 # Install dependencies
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev && rm -rf /root/.cache
 
 # Copy project files
 COPY . .

@@ -61,6 +61,13 @@ def run_ingestion(tmp_path: str, user_id: str, session_id: str, filename: str):
         ingest_pdf(tmp_path, user_id=user_id, session_id=session_id)
         ingest_pdf_for_graph(tmp_path, user_id=user_id, session_id=session_id)
         print(f"Background ingestion complete: {filename}")
+
+        supabase.table("documents").insert({
+            "session_id": session_id,
+            "user_id": user_id,
+            "filename": filename,
+        }).execute()
+
     except Exception as e:
         print(f"Background ingestion failed: {e}")
     finally:
@@ -112,6 +119,7 @@ async def delete_session(session_id: str, user=Depends(get_current_user)):
     supabase.table("bm25_store").delete().eq("id", f"{user.id}_{session_id}").execute()
     supabase.table("parent_store").delete().eq("session_id", session_id).execute()
     supabase.table("graph_store").delete().eq("id", f"{user.id}_{session_id}").execute()
+    supabase.table("documents").delete().eq("session_id",session_id).execute()
 
     return {"status": "deleted", "session_id": session_id}
 
@@ -231,6 +239,14 @@ async def chat(request: ChatRequest, user=Depends(get_current_user)):
 
     graph_start = time.time()
 
+    # before graph.invoke
+    docs = supabase.table("documents") \
+        .select("filename") \
+        .eq("session_id", request.session_id) \
+        .execute()
+    pdf_paths = [d["filename"] for d in docs.data]
+
+
     result = graph.invoke({
         "messages": messages,
         "history":history,
@@ -242,7 +258,8 @@ async def chat(request: ChatRequest, user=Depends(get_current_user)):
         "loop_decision": "",
         "routing_decision": {},
         "final_answer": "",
-        "total_tokens": 0 
+        "total_tokens": 0,
+        "pdf_paths":pdf_paths
     })
     graph_latency = round(time.time() - graph_start,2)
     print(f"Graph latency: {graph_latency}s")
@@ -288,3 +305,6 @@ async def health():
     return {"status": "ok"}
 
 
+@app.get("/")
+async def check():
+    return {"message":"API is runnning......"}

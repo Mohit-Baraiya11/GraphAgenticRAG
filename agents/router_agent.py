@@ -19,6 +19,7 @@ def router_agent(state):
     
         
     pdf_paths = state.get("pdf_paths", [])
+    print(pdf_paths)
     document_context = f"""
     Uploaded Documents: {pdf_paths}
     Document Count: {len(pdf_paths)}
